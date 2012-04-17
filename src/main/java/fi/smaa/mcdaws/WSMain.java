@@ -29,7 +29,6 @@ import com.google.common.io.Resources;
 import fi.smaa.libror.InfeasibleConstraintsException;
 import fi.smaa.libror.RORModel;
 import fi.smaa.libror.UTAGMSSolver;
-import fi.smaa.mcdaws.xml.XMLMarshaller;
 
 public class WSMain {
 	
@@ -57,9 +56,9 @@ public class WSMain {
 			return;
 		}
 		
-		File altFile = new File(opts.getInputDir() + File.pathSeparator + ALTFILE);
-		File perfFile = new File(opts.getInputDir() + File.pathSeparator + PERFFILE);
-		File prefFile = new File(opts.getInputDir() + File.pathSeparator + PREFFILE);
+		File altFile = new File(opts.getInputDir() + File.separator + ALTFILE);
+		File perfFile = new File(opts.getInputDir() + File.separator + PERFFILE);
+		File prefFile = new File(opts.getInputDir() + File.separator + PREFFILE);
 		
 		String input = readFiles(altFile, perfFile, prefFile);
 
@@ -70,8 +69,8 @@ public class WSMain {
 		RealMatrix nec = solver.getNecessaryRelation();
 		RealMatrix pos = solver.getPossibleRelation();
 		
-		writeOutputRelation(opts.getOutputDir() + File.pathSeparator + FILE_NECESSARY, nec);
-		writeOutputRelation(opts.getOutputDir() + File.pathSeparator + FILE_POSSIBLE, pos);
+		writeOutputRelation(opts.getOutputDir() + File.separator + FILE_NECESSARY, nec);
+		writeOutputRelation(opts.getOutputDir() + File.separator + FILE_POSSIBLE, pos);
 	}
 
 	public static RORModel processInput(String input) throws TransformerFactoryConfigurationError,
@@ -81,7 +80,8 @@ public class WSMain {
 		Transformer tf = fact.newTransformer(new StreamSource(xsltStream));
 		StringWriter outp = new StringWriter();
 		tf.transform(new StreamSource(new StringReader(input)), new StreamResult(outp));
-		
+						
+		System.out.println(outp.toString());
 		UtagmsInputDocument doc = UtagmsInputDocument.Factory.parse(outp.toString());
 		RORModel model = XMLMarshaller.xmlInputToRORModel(doc);
 		return model;
@@ -114,10 +114,10 @@ public class WSMain {
 		w.close();
 	}
 
-	private static String readFiles(File altFile, File perfFile, File prefFile) throws IOException {
-		String altStr = Files.toString(altFile, Charsets.US_ASCII);
-		String perfStr = Files.toString(perfFile, Charsets.US_ASCII);
-		String prefStr = Files.toString(prefFile, Charsets.US_ASCII);
+	private static String readFiles(File altFile, File perfFile, File prefFile) throws IOException, TransformerException {
+		String altStr = XMLMarshaller.xmcdaToContents(Files.toString(altFile, Charsets.US_ASCII));
+		String perfStr = XMLMarshaller.xmcdaToContents(Files.toString(perfFile, Charsets.US_ASCII));
+		String prefStr = XMLMarshaller.xmcdaToContents(Files.toString(prefFile, Charsets.US_ASCII));
 		
 		String finalString = XMCDA_HEADER+altStr+"\n"+perfStr+"\n"+prefStr+"\n</XMCDA>\n";
 		return finalString;

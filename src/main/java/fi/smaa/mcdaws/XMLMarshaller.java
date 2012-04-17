@@ -1,9 +1,19 @@
-package fi.smaa.mcdaws.xml;
+package fi.smaa.mcdaws;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.math.linear.Array2DRowRealMatrix;
 import org.apache.commons.math.linear.RealMatrix;
@@ -16,10 +26,23 @@ import org.decision_deck.xmcda3.ValuedPairType;
 import org.decision_deck.xmcda3.uta.UtagmsInputDocument;
 import org.decision_deck.xmcda3.uta.UtagmsInputDocument.UtagmsInput;
 
+import com.google.common.io.Resources;
+
 import fi.smaa.libror.PerformanceMatrix;
 import fi.smaa.libror.RORModel;
 
 public class XMLMarshaller {
+	
+	private static final String XMCDA_XSLT_FILE = "xmcdaToContents.xslt";
+
+	public static String xmcdaToContents(String inp) throws IOException, TransformerException {
+		TransformerFactory fact = TransformerFactory.newInstance();
+		InputStream xsltStream = Resources.newInputStreamSupplier(Resources.getResource(XMCDA_XSLT_FILE)).getInput();
+		Transformer tf = fact.newTransformer(new StreamSource(xsltStream));
+		StringWriter outp = new StringWriter();
+		tf.transform(new StreamSource(new StringReader(inp)), new StreamResult(outp));		
+		return outp.toString().trim();
+	}
 	
 	public static RORModel xmlInputToRORModel(UtagmsInputDocument input) {
 		UtagmsInput inp = input.getUtagmsInput();

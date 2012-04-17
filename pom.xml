@@ -96,9 +96,16 @@
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
+					<finalName>mcda-ws-${pom.version}</finalName>
+					<appendAssemblyId>false</appendAssemblyId>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>fi.smaa.mcdaws.WSMain</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 				<executions>
 					<execution>
